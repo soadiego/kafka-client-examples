@@ -1,0 +1,4 @@
+alpaca-trade-api==3.2.0
+alpaca-py==0.8.2
+kafka-python==2.0.2
+
