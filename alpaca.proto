@@ -1,0 +1,40 @@
+syntax = "proto2";
+
+package alpaca;
+
+message trade {
+  optional string type = 1;
+  optional string symbol = 2;
+  optional sint32 id = 3;
+  optional string exchange = 4;
+  optional double price = 5;
+  optional sint32 size = 6;
+  optional string condition = 7;
+  optional string time = 8;
+  optional string tape = 9;
+}
+
+message quote {
+  optional string type = 1;
+  optional string symbol = 2;
+  optional string ask_exchange = 3;
+  optional double ask_price = 4;
+  optional sint32 ask_size = 5;
+  optional string bid_exchange = 6;
+  optional double bid_price = 7;
+  optional sint32 bid_size = 8;
+  optional string condition = 9;
+  optional string time = 10;
+  optional string tape = 11;
+}
+
+message bars {
+  optional string type = 1;
+  optional string symbol = 2;
+  optional double open_price = 3;
+  optional double high_price = 4;
+  optional double low_price = 5;
+  optional double close_price = 6;
+  optional sint32 volume = 7;
+  optional string time = 8;
+}
