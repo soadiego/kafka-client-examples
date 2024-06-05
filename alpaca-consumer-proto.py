@@ -3,7 +3,7 @@ import json,os
 import alpaca_pb2 as ProtoAlpaca
 
 #Import Bootstrap server from environment variable
-brokers = os.environ.get('BOOTSTRAP_SERVERS')
+brokers = os.environ.get('VPCE_SCRAMBROKERS')
 
 #Create Consumer
 consumer = KafkaConsumer(
@@ -21,7 +21,7 @@ consumer = KafkaConsumer(
 
 print("Starting Kafka Consumer with brokers at ", brokers)
 
-quote = ProtoAlpaca.Quote()
+quote = ProtoAlpaca.quote()
 # Loop to consume messages and Print details.
 for message in consumer:
     print (quote.ParseFromString(message.value))
