@@ -1,5 +1,5 @@
 from kafka import KafkaConsumer
-import json,os
+import os
 import alpaca_pb2 as ProtoAlpaca
 
 #Import Bootstrap server from environment variable
@@ -7,7 +7,7 @@ brokers = os.environ.get('VPCE_SCRAMBROKERS')
 
 #Create Consumer
 consumer = KafkaConsumer(
-    'quote', #topic to consume
+    'quote','trade','trade_bars', #topics to consume
     group_id='consumer_python', #local consumer name
     bootstrap_servers=brokers, #Brokers List
     api_version=(3,5,1),
@@ -22,7 +22,20 @@ consumer = KafkaConsumer(
 print("Starting Kafka Consumer with brokers at ", brokers)
 
 quote = ProtoAlpaca.quote()
+trade = ProtoAlpaca.trade()
+bars = ProtoAlpaca.bars()
+
 # Loop to consume messages and Print details.
 for message in consumer:
-    print (quote.ParseFromString(message.value))
-
+    if message.topic == 'quote':
+        quote.ParseFromString(message.value)
+        print (quote)    
+        quote.Clear()
+    elif message.topic == 'trade':
+        trade.ParseFromString(message.value)
+        print (trade)    
+        trade.Clear()
+    elif message.topic == 'trade_bars':
+        bars.ParseFromString(message.value)
+        print (bars)    
+        bars.Clear()

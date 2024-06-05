@@ -1,6 +1,6 @@
 from alpaca.data.live import StockDataStream
 from kafka import KafkaProducer
-import json, os, logging
+import os, logging
 import alpaca_pb2 as ProtoAlpaca
 
 #Define Logging
@@ -19,29 +19,32 @@ producer = KafkaProducer(
     sasl_mechanism=os.environ.get("KAFKA_SASL_MECHANISM"),
     sasl_plain_username=os.environ.get("KAFKA_SASL_USERNAME"),
     sasl_plain_password=os.environ.get("KAFKA_SASL_PASSWORD"),
-    
-    value_serializer=lambda v: json.dumps(v).encode('utf-8'), #Serialization Method
-    acks=(1) #Number of ACKs to wait on. (0= None, 1=Partition Leader, All= All Brokers with the partion)
+
+    acks=(1) #Number of ACKs to wait on. (0= None, 1=Partition Leader, All= All Brokers with the partition)
 )
+
+quote = ProtoAlpaca.quote()
+trade_bars = ProtoAlpaca.bars()
+trade = ProtoAlpaca.trade()
 
 #Post messages into Kafka Topics
 async def post_bars(b):
-    trade_bars = ProtoAlpaca.bars()
+    trade_bars.Clear()
     trade_bars.type = "trade_bars"
     trade_bars.symbol = b.symbol
     trade_bars.time = str(b.timestamp)
-    trade_bars.open = b.open
-    trade_bars.high = b.high
-    trade_bars.low = b.low
-    trade_bars.close = b.close
+    trade_bars.open_price = b.open
+    trade_bars.high_price = b.high
+    trade_bars.low_price = b.low
+    trade_bars.close_price = b.close
     trade_bars.volume = b.volume
 
-    print('trade_bars', trade_bars.SerializeToString())
-    producer.send('trade_bars', value=trade_bars)
+    print('trade_bars_proto', trade_bars.SerializeToString())
+    producer.send('trade_bars', value=trade_bars.SerializeToString())
     producer.flush()
 
 async def post_trade(t):
-    trade = ProtoAlpaca.trade()
+    trade.Clear()
     trade.type = "trade"
     trade.symbol = t.symbol
     trade.id = t.id
@@ -52,12 +55,12 @@ async def post_trade(t):
     trade.time = str(t.timestamp)
     trade.tape = t.tape
 
-    print('trade_proto', trade.SerializeToString())
-    producer.send('trade', value=str(t))
+    # print('trade_proto', trade.SerializeToString())
+    producer.send('trade', value=trade.SerializeToString())
     producer.flush()
 
 async def post_quote(q):
-    quote = ProtoAlpaca.quote()
+    quote.Clear()
     quote.type = "quote"
     quote.symbol = q.symbol
     quote.ask_exchange = q.ask_exchange
@@ -70,8 +73,8 @@ async def post_quote(q):
     quote.time = str(q.timestamp)
     quote.tape = q.tape
 
-    print('quote_proto', quote.SerializeToString())
-    producer.send('quote', value=quote)
+    # print('quote_proto', quote.SerializeToString())
+    producer.send('quote', value=quote.SerializeToString())
     producer.flush()
 
 #Main Function that create Alpaca Stream Subscriptions
@@ -83,8 +86,10 @@ def main():
     #option_stream = OptionDataStream("api-key", "secret-key")
 
     stock_stream = StockDataStream(os.environ.get("API_KEY"), os.environ.get("SECRET_KEY"))
-    stock_stream.subscribe_quotes(post_quote, "QQQ")
-    stock_stream.subscribe_quotes(post_quote, "AMZN")
+    stock_stream.subscribe_quotes(post_quote, "QQQ","AMZN","MSFT","NVDA")
+    stock_stream.subscribe_trades(post_trade, "QQQ","AMZN","MSFT","NVDA")
+    stock_stream.subscribe_bars(post_bars, "QQQ","AMZN","MSFT","NVDA")
+
 
     stock_stream.run()
 

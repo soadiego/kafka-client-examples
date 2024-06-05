@@ -2,11 +2,11 @@ from kafka import KafkaConsumer
 import json,os
 
 #Import Bootstrap server from environment variable
-brokers = os.environ.get('BOOTSTRAP_SERVERS')
+brokers = os.environ.get('VPCE_SCRAMBROKERS')
 
 #Create Consumer
 consumer = KafkaConsumer(
-    'quote', #topic to consume
+    'quote','trade','trade_bars', #topics to consume
     group_id='consumer_python', #local consumer name
     bootstrap_servers=brokers, #Brokers List
     api_version=(3,5,1),

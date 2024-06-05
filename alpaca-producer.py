@@ -50,12 +50,12 @@ def main():
 
     # keys are required for live data
     #crypto_stream = CryptoDataStream("api-key", "secret-key")
-    stock_stream = StockDataStream(os.environ.get("API_KEY"), os.environ.get("SECRET_KEY"))
     #option_stream = OptionDataStream("api-key", "secret-key")
-
-    stock_stream.subscribe_quotes(post_quote, "QQQ")
-    stock_stream.subscribe_quotes(post_quote, "AMZN")
-
+    
+    stock_stream = StockDataStream(os.environ.get("API_KEY"), os.environ.get("SECRET_KEY"))
+    stock_stream.subscribe_quotes(post_quote, "QQQ","AMZN","MSFT","NVDA")
+    stock_stream.subscribe_trades(post_trade, "QQQ","AMZN","MSFT","NVDA")
+    stock_stream.subscribe_bars(post_bars, "QQQ","AMZN","MSFT","NVDA")
     stock_stream.run()
 
 if __name__ == "__main__":
